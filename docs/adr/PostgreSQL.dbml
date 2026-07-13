@@ -1,5 +1,21 @@
-// v0.9 change: added password_reset_tokens and sessions (stock Fortify/Laravel
-// scaffold tables). Also flags an open issue — see note on users.password below.
+// Covers ADR 0001 (users/employees/contacts/companies core), ADR 0002
+// (address storage), ADR 0003 (contact lifecycle — deferred).
+// Project-access pivot intentionally omitted — not yet designed
+// (tracked as a follow-up ADR).
+//
+// v0.10 changes:
+//   - account_status changed from varchar(40) to enum on companies
+//   - account_status (nullable) added to contacts, per ADR 0003
+//   - billing/physical address columns added to companies, per ADR 0002
+//   - address columns added to contacts (individual billing address), per ADR 0002
+//
+// v0.11 changes:
+//   - Address fields scoped to US-only for now (deliberate decision, not an
+//     oversight): no `country` column, state fields capped at varchar(2)
+//     (USPS abbreviation), renamed state_province -> state and
+//     postal_code -> zip to match how the team actually talks about these
+//     fields. To be revisited when the Java version (V2-V3) is built,
+//     if/when non-US clients become a real possibility.
 
 Enum user_type {
   employee
@@ -22,12 +38,19 @@ Enum contact_role {
   viewer
 }
 
+Enum account_status {
+  active
+  inactive
+  prospect
+  suspended
+}
+
 Table users {
   id bigint [pk, increment]
   name varchar(160) [not null]
   email varchar(190) [not null, unique]
   email_verified_at timestamp [null]
-  password varchar(255) [null, note: 'Nullable — contacts get a users row before they have a password set. See ADR 0001. NOTE: stock Laravel migration does NOT mark this nullable by default — must add ->nullable() when writing the real migration.']
+  password varchar(255) [null, note: 'Nullable — contacts get a users row before they have a password set. See ADR 0001. Stock Laravel migration does NOT mark this nullable by default — must add ->nullable().']
   type user_type [not null, note: 'Fast routing signal only. Not a source of truth for permissions.']
   remember_token varchar(100) [null]
   created_at timestamp
@@ -46,7 +69,7 @@ Table password_reset_tokens {
   token varchar(255) [not null]
   created_at timestamp [null]
 
-  note: 'Stock Fortify/Laravel table. Framework-owned, no custom fields planned.'
+  note: 'Stock Fortify/Laravel table. No formal FK to users.email by design — Laravel matches this by value at query time via the Password broker, not a DB constraint. Tokens expire on their own (config-driven TTL), so no delete-cascade behavior is needed.'
 }
 
 Table sessions {
@@ -62,7 +85,7 @@ Table sessions {
     last_activity
   }
 
-  note: 'Stock Fortify/Laravel table. Framework-owned, no custom fields planned.'
+  note: 'Stock Fortify/Laravel table. user_id cascades on delete when the parent user is hard-deleted. Portal-access revocation (contacts.portal_enabled -> false) is handled in application code (ContactObserver), not by this FK — flipping the flag does not delete the users row, so no cascade fires.'
 }
 
 Table employees {
@@ -85,10 +108,23 @@ Table employees {
 Table companies {
   id bigint [pk, increment]
   name varchar(220) [not null]
-  account_status varchar(40) [not null, default: 'active']
+  account_status account_status [not null, default: 'active']
   main_email varchar(190) [null]
   main_phone varchar(80) [null]
   accounting_email varchar(190) [null]
+
+  billing_address_line_1 varchar(255) [not null]
+  billing_address_line_2 varchar(255) [null]
+  billing_city varchar(120) [not null]
+  billing_state varchar(2) [not null, note: 'USPS state abbreviation. US-only for now — see v0.11 changelog note at top of file.']
+  billing_zip varchar(10) [not null]
+
+  physical_address_line_1 varchar(255) [null]
+  physical_address_line_2 varchar(255) [null]
+  physical_city varchar(120) [null]
+  physical_state varchar(2) [null]
+  physical_zip varchar(10) [null]
+
   billing_notes text [null]
   notes text [null]
   restrict_contacts_to_assigned_projects boolean [not null, default: false, note: 'Company-level default for project visibility. See contact_project_access (future) and contacts.can_view_all_company_projects override.']
@@ -99,6 +135,8 @@ Table companies {
     name
     account_status
   }
+
+  note: 'Billing address required, physical address optional. Inline columns chosen over a separate polymorphic addresses table — see ADR 0002 for the full tradeoff and the documented upgrade path if this needs to change later.'
 }
 
 Table contacts {
@@ -108,10 +146,18 @@ Table contacts {
   phone varchar(80) [null]
   title varchar(160) [null]
   contact_role contact_role [not null, default: 'project_manager']
+  account_status account_status [null, note: 'Only meaningful when company_id IS NULL (individuals). Company-affiliated contacts inherit status from companies.account_status — no per-contact override exists. See ADR 0003 for the reasoning and the deferred future revisit.']
   portal_enabled boolean [not null, default: false, note: 'The actual access gate, checked in Fortify::authenticateUsing(). See ADR 0001.']
   notification_email varchar(190) [null, note: 'NULL = use users.email (login email) for notifications. Only set when correspondence email genuinely differs from login. Read via Contact::effective_notification_email accessor, never directly.']
   can_view_accounting boolean [not null, default: false]
   can_view_all_company_projects boolean [null, note: 'NULL = inherit companies.restrict_contacts_to_assigned_projects. Explicit true/false overrides per-contact.']
+
+  address_line_1 varchar(255) [null]
+  address_line_2 varchar(255) [null]
+  city varchar(120) [null]
+  state varchar(2) [null, note: 'USPS state abbreviation. US-only for now — see v0.11 changelog note at top of file.']
+  zip varchar(10) [null]
+
   notes text [null]
   created_at timestamp
   updated_at timestamp
@@ -121,7 +167,7 @@ Table contacts {
     (company_id, contact_role)
   }
 
-  note: 'Primary client table — both individuals and company contacts live here. Name/login email come from the related users row, not duplicated here. See ADR 0001.'
+  note: 'Primary client table — both individuals and company contacts live here. Name/login email come from the related users row, not duplicated here. Address fields represent an individual’s billing address (only populated when company_id IS NULL) — see ADR 0002. See ADR 0001 for the overall table design and ADR 0003 for the contact-lifecycle deferral.'
 }
 
 // --- spatie/laravel-permission (generated by the package's own migration; shown here for ERD completeness) ---
