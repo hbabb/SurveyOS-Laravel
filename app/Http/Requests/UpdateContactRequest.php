@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreContactRequest extends FormRequest
+class UpdateContactRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,7 @@ class StoreContactRequest extends FormRequest
      */
     public function rules(): array
     {
-        $companyId = $this->input('company_id');
+        $companyId = $this->route('contact')->company_id;
 
         return [
             'address_line_1' => $companyId === null ? 'required' : 'nullable',

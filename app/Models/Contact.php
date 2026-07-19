@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property mixed $user_id
- * @method static create($validated)
  */
 class Contact extends Model
 {

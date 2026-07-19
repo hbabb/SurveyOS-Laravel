@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreContactRequest;
+use App\Http\Requests\UpdateContactRequest;
 use App\Models\Contact;
 use Illuminate\Http\RedirectResponse;
-
-// TODO: complete the methods below
+use Illuminate\View\View;
 
 class ContactController extends Controller
 {
@@ -17,10 +17,8 @@ class ContactController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
-        $this->authorize('viewAny', Contact::class);
-
         $contacts = Contact::with('company')->get();
 
         return view('contacts.index', compact('contacts'));
@@ -29,9 +27,9 @@ class ContactController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
-        //
+        // TODO: add view return here
     }
 
     /**
@@ -39,8 +37,6 @@ class ContactController extends Controller
      */
     public function store(StoreContactRequest $request): RedirectResponse
     {
-        $this->authorize('create', Contact::class);
-
         Contact::create($request->validated());
 
         return redirect()->route('contacts.index');
@@ -49,32 +45,36 @@ class ContactController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Contact $contact)
+    public function show(Contact $contact): View
     {
-        //
+        return view('contacts.show', compact('contact'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Contact $contact)
+    public function edit(Contact $contact): View
     {
-        //
+        return view('contacts.edit', compact('contact'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Contact $contact)
+    public function update(UpdateContactRequest $request, Contact $contact): RedirectResponse
     {
-        //
+        $contact->update($request->validated());
+
+        return redirect()->route('contacts.show', $contact);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Contact $contact)
+    public function destroy(Contact $contact): RedirectResponse
     {
-        //
+        $contact->delete();
+
+        return redirect()->route('contacts.index');
     }
 }
