@@ -62,16 +62,16 @@ chosen over a hand-rolled `roles` + pivot table because:
   example: an employee who is both Office Admin and PLS), which
   spatie's `model_has_roles` many-to-many pivot supports natively.
 - PLS is a licensed role with real regulatory sign-off authority
-  (e.g. plat approval) that will need fine-grained permissions
-  distinct from role name, sooner or later. spatie lets that be a
-  data change (new permission row, assign to role) instead of a
+  (e.g., plat approval) that will need fine-grained permissions
+  distinct from the role name, sooner or later. spatie lets that be a
+  data change (new permission row, assign to a role) instead of a
   migration.
 - A future in-app "portal admin" screen for managing roles/permissions
   can be built directly on spatie's existing tables rather than a
   custom authorization engine.
 
 PLS-specific regulatory permissions are **not** being modeled in v1 —
-noted here so the reasoning isn't lost, but deferred intentionally to
+noted here, so the reasoning isn't lost, but deferred intentionally to
 keep the initial migration set small.
 
 ## Portal access control (contacts)
@@ -90,10 +90,10 @@ scattered across controllers.
 
 The first time `portal_enabled` is flipped to `true`, that's the
 trigger to send a "set your password" email, reusing Laravel's
-built-in password-reset broker as an invite mechanism (it only
+built-in password-reset broker as an invitation mechanism (it only
 requires an existing `users` row + email, not an existing password).
 
-## Name and email — single source of truth
+## Name and email — a single source of truth
 
 `contacts` does **not** duplicate `name` or `email` from `users`.
 Every contact has a `users` row by design (see above), so
@@ -102,7 +102,7 @@ Every contact has a `users` row by design (see above), so
 
 The one legitimate reason to diverge is correspondence: a contact may
 want project notifications and invoices sent somewhere other than
-their login address (e.g. logging in with a personal email but
+their login address (e.g., logging in with a personal email but
 wanting billing sent to `accounting@company.com`). That case is
 handled by a single nullable column, `contacts.notification_email`,
 not a duplicate of the login email. The `Contact` model exposes an
@@ -128,7 +128,7 @@ This was a deliberate choice over building a custom
 employees only. A scoped action was considered (see Alternatives)
 but rejected as unnecessary complexity for a team this size — the
 cost of "staff occasionally edits someone's email for them" is
-trivial at 4-5 employees, and a global toggle needs zero custom code
+trivial at 4–5 employees, and a global toggle needs zero custom code
 to write or maintain.
 
 `Features::updatePasswords()` (changing your own password while
@@ -137,7 +137,7 @@ it carries none of the same "silently change how I'm identified"
 risk that an email change does.
 
 One consequence to handle: if a contact has a pending invite
-(`portal_enabled` just turned on, reset-link sent, password not yet
+(`portal_enabled` just turned on, a reset-link sent, password not yet
 set) and staff then edit that contact's email before they've logged
 in, the original invite link was generated for the old address. The
 update-contact code path should detect a pending invite and
@@ -153,7 +153,7 @@ link outstanding.
 - **Fully separate Authenticatable models + auth guards for staff vs.
   contacts** — closest to what the legacy tooling had drifted toward.
   Rejected in favor of a single guard + `users.type` because it's
-  simpler to configure with Fortify out of the box and we don't
+  simpler to configure with Fortify out of the box, and we don't
   currently need guard-level session/cookie separation.
 - **A dedicated "individuals" table separate from company contacts** —
   rejected: `contacts.company_id` nullable achieves the same result
@@ -162,7 +162,7 @@ link outstanding.
 - **A custom `UpdatesUserProfileInformation` action, scoped to allow
   self-service edits for employees but block them for contacts** —
   considered as a way to get self-service editing for staff without
-  opening it up to contacts. Rejected: at 4-5 employees, the admin
+  opening it up to contacts. Rejected: at 4–5 employees, the admin
   overhead of staff editing their own name/email for them is
   negligible, and it avoids writing and maintaining custom code for a
   Fortify extension point most teams never need to touch.
@@ -181,7 +181,7 @@ link outstanding.
   covered in a follow-up ADR once we design the projects/access slice.
 - Self-service profile editing being globally off means any future
   "let clients manage their own contact info" request is additive
-  (a new, deliberately-scoped feature) rather than a reversal of this
+  (a new, deliberately scoped feature) rather than a reversal of this
   decision.
 
 ## Amendment log
@@ -193,3 +193,6 @@ link outstanding.
   the "Name and email — single source of truth" section, and added
   `contacts.notification_email`. Added the "Self-service profile
   editing is disabled globally" decision.
+
+- **2026-07-15:** Added `cascadeOnDelete()` to the `employees` table
+  FK to `users`.
