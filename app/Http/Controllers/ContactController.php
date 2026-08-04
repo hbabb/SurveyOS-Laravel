@@ -25,14 +25,6 @@ class ContactController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): View
-    {
-        // TODO: add view return here
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreContactRequest $request): RedirectResponse
@@ -40,6 +32,14 @@ class ContactController extends Controller
         Contact::create($request->validated());
 
         return redirect()->route('contacts.index');
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): View
+    {
+        return view('contacts.create');
     }
 
     /**
