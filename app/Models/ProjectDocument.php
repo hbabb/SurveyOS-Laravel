@@ -5,6 +5,7 @@ namespace App\Models;
 use App\DocumentType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProjectDocument extends Model
 {
@@ -33,5 +34,10 @@ class ProjectDocument extends Model
     public function uploadedByEmployee(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'uploaded_by_employee_id');
+    }
+
+    public function parcelTransfers(): HasMany
+    {
+        return $this->hasMany(ParcelTransfer::class);
     }
 }

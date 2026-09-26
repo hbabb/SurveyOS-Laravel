@@ -43,4 +43,9 @@ class ProjectParcel extends Model
     {
         return $this->hasMany(ProjectAdjoiner::class);
     }
+
+    public function parcelTransfers(): HasMany
+    {
+        return $this->hasMany(ParcelTransfer::class);
+    }
 }
