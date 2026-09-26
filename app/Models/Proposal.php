@@ -6,6 +6,7 @@ use App\ProposalAcceptanceSource;
 use App\ProposalStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Proposal extends Model
 {
@@ -53,5 +54,10 @@ class Proposal extends Model
     public function acceptedByEmployee(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'accepted_by_employee_id');
+    }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
     }
 }

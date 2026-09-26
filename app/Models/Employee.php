@@ -5,6 +5,7 @@ namespace App\Models;
 use App\EmployeePosition;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -47,5 +48,20 @@ class Employee extends Model
     public function acceptedProposals(): HasMany
     {
         return $this->hasMany(Proposal::class, 'accepted_by_employee_id');
+    }
+
+    public function managedProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'project_manager_id');
+    }
+
+    public function researchedProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'researcher_id');
+    }
+
+    public function fieldProjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Project::class, 'project_field_crew');
     }
 }
