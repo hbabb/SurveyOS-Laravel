@@ -8,14 +8,8 @@ use App\Models\User;
 class ContactPolicy
 {
     /**
-     * Determine whether the user can view any models.
-     */
-    /**
      * Runs before every ability check. If this returns true, that ability is immediately allowed.
      * If it returns null, Laravel falls through to the specific method below.
-     * @param User $user
-     * @param string $ability
-     * @return bool|null
      */
     public function before(User $user, string $ability): ?bool
     {
