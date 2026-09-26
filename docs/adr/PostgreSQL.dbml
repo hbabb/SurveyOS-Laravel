@@ -37,6 +37,9 @@
 //     project_documents, project_cad_setups, project_invoices,
 //     parcel_transfers (ownership chain). projects gains
 //     field_scheduled_date and archived_at.
+//   - Change orders: proposals.change_order_project_id (nullable) points
+//     a proposal at an existing project. projects.proposal_id is unique —
+//     one project per original proposal.
 //   - Package tables shown for completeness: activity_log
 //     (spatie/laravel-activitylog), personal_access_tokens (Sanctum).
 //   - Out of V1 (later versions): client portal, control points, plat
@@ -344,7 +347,8 @@ Table proposals {
   id bigint [pk, increment]
   proposal_no varchar(8) [not null, unique, note: 'P-YYNNNN. Generated at creation from number_sequences. See ADR 0004.']
 
-  site_intake_id bigint [not null, note: 'Client and site data are read through the intake — not stored here.']
+  site_intake_id bigint [not null, note: 'Client and site data are read through the intake — not stored here. A change order reuses the intake of its project.']
+  change_order_project_id bigint [null, note: 'NULL = original proposal; accepting it creates the project. Set = change order against an existing project; accepting it does not create a project. A project can have many.']
 
   service_type varchar(140) [null]
   scope_description text [null]
@@ -369,6 +373,7 @@ Table proposals {
 
   indexes {
     site_intake_id
+    change_order_project_id
     status
   }
 
@@ -380,7 +385,7 @@ Table projects {
   project_no varchar(6) [not null, unique, note: 'YYNNNN. Generated at creation from number_sequences. See ADR 0004.']
   project_name varchar(220) [not null]
 
-  proposal_id bigint [not null, note: 'The accepted proposal this project was created from. Client and site data are read through proposal -> site_intake, not copied here.']
+  proposal_id bigint [not null, unique, note: 'The accepted original proposal this project was created from. One project per proposal. Change orders point here via proposals.change_order_project_id instead. Client and site data are read through proposal -> site_intake, not copied here.']
 
   status project_status [not null, default: 'research']
   status_changed_at timestamp [null]
@@ -760,7 +765,8 @@ Ref: site_intakes.contact_id > contacts.id [delete: restrict]
 Ref: proposals.site_intake_id > site_intakes.id [delete: restrict]
 Ref: proposals.accepted_by_employee_id >? employees.id [delete: set null]
 
-Ref: projects.proposal_id > proposals.id [delete: restrict]
+Ref: projects.proposal_id ?- proposals.id [delete: restrict]
+Ref: proposals.change_order_project_id >? projects.id [delete: restrict]
 Ref: projects.project_manager_id >? employees.id [delete: set null]
 Ref: projects.researcher_id >? employees.id [delete: set null]
 
