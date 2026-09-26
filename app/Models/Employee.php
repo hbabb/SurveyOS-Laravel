@@ -5,6 +5,7 @@ namespace App\Models;
 use App\EmployeePosition;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -36,5 +37,10 @@ class Employee extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function licenses(): HasMany
+    {
+        return $this->hasMany(EmployeeLicense::class);
     }
 }
