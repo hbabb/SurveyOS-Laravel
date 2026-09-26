@@ -90,4 +90,9 @@ class Project extends Model
     {
         return $this->hasMany(ProjectInvoiceFollowup::class);
     }
+
+    public function lots(): HasMany
+    {
+        return $this->hasMany(ProjectLot::class);
+    }
 }
