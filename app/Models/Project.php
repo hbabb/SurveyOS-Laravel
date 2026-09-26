@@ -80,4 +80,9 @@ class Project extends Model
     {
         return $this->hasMany(ProjectParcel::class);
     }
+
+    public function femaReferences(): HasMany
+    {
+        return $this->hasMany(ProjectFemaReference::class);
+    }
 }
