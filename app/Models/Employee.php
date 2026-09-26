@@ -5,9 +5,15 @@ namespace App\Models;
 use App\EmployeePosition;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class Employee extends Model
 {
+    use HasApiTokens, HasRoles;
+
+    protected string $guard_name = 'web';
+
     protected $fillable = [
         'user_id',
         'position',
