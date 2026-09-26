@@ -110,4 +110,9 @@ class Project extends Model
     {
         return $this->hasMany(ProjectResearchNote::class);
     }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(ProjectInvoice::class);
+    }
 }
