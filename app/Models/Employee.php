@@ -79,4 +79,9 @@ class Employee extends Model
     {
         return $this->hasMany(ProjectSurveyDetail::class, 'checker_id');
     }
+
+    public function projectInvoiceFollowups(): HasMany
+    {
+        return $this->hasMany(ProjectInvoiceFollowup::class);
+    }
 }

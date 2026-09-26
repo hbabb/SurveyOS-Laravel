@@ -85,4 +85,9 @@ class Project extends Model
     {
         return $this->hasMany(ProjectFemaReference::class);
     }
+
+    public function invoiceFollowups(): HasMany
+    {
+        return $this->hasMany(ProjectInvoiceFollowup::class);
+    }
 }
