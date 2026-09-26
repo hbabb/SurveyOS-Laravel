@@ -64,4 +64,19 @@ class Employee extends Model
     {
         return $this->belongsToMany(Project::class, 'project_field_crew');
     }
+
+    public function certifyingSurveyDetails(): HasMany
+    {
+        return $this->hasMany(ProjectSurveyDetail::class, 'certifying_surveyor_id');
+    }
+
+    public function draftedSurveyDetails(): HasMany
+    {
+        return $this->hasMany(ProjectSurveyDetail::class, 'drafter_id');
+    }
+
+    public function checkedSurveyDetails(): HasMany
+    {
+        return $this->hasMany(ProjectSurveyDetail::class, 'checker_id');
+    }
 }
