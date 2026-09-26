@@ -95,4 +95,9 @@ class Project extends Model
     {
         return $this->hasMany(ProjectLot::class);
     }
+
+    public function cadSetup(): HasOne
+    {
+        return $this->hasOne(ProjectCadSetup::class);
+    }
 }
