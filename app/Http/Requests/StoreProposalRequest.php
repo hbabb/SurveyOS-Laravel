@@ -28,6 +28,7 @@ class StoreProposalRequest extends FormRequest
         return [
             'proposal_no' => 'required|string|max:8|unique:proposals,proposal_no',
             'site_intake_id' => 'required|integer|exists:site_intakes,id',
+            'change_order_project_id' => 'nullable|integer|exists:projects,id',
             'service_type' => 'nullable|string|max:140',
             'scope_description' => 'nullable|string',
             'exclusions_description' => 'nullable|string',

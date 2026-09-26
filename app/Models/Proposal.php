@@ -6,13 +6,14 @@ use App\ProposalAcceptanceSource;
 use App\ProposalStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Proposal extends Model
 {
     protected $fillable = [
         'proposal_no',
         'site_intake_id',
+        'change_order_project_id',
         'service_type',
         'scope_description',
         'exclusions_description',
@@ -56,8 +57,13 @@ class Proposal extends Model
         return $this->belongsTo(Employee::class, 'accepted_by_employee_id');
     }
 
-    public function projects(): HasMany
+    public function project(): HasOne
     {
-        return $this->hasMany(Project::class);
+        return $this->hasOne(Project::class);
+    }
+
+    public function changeOrderProject(): BelongsTo
+    {
+        return $this->belongsTo(Project::class, 'change_order_project_id');
     }
 }

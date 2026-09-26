@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('project_no', 6)->unique();
             $table->string('project_name', 220);
-            $table->foreignId('proposal_id')->index()->constrained()->restrictOnDelete();
+            $table->foreignId('proposal_id')->index()->unique()->constrained()->restrictOnDelete();
             $table->enum('status', [
                 'research',
                 'ready_for_schedule',

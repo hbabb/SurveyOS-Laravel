@@ -33,6 +33,7 @@ class UpdateProposalRequest extends FormRequest
                 Rule::unique('proposals', 'proposal_no')->ignore($this->route('proposal')),
             ],
             'site_intake_id' => 'required|integer|exists:site_intakes,id',
+            'change_order_project_id' => 'nullable|integer|exists:projects,id',
             'service_type' => 'nullable|string|max:140',
             'scope_description' => 'nullable|string',
             'exclusions_description' => 'nullable|string',

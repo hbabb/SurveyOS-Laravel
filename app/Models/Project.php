@@ -56,6 +56,11 @@ class Project extends Model
         return $this->belongsTo(Proposal::class);
     }
 
+    public function changeOrders(): HasMany
+    {
+        return $this->hasMany(Proposal::class, 'change_order_project_id');
+    }
+
     public function projectManager(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'project_manager_id');
