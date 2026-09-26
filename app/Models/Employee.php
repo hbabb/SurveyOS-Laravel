@@ -89,4 +89,9 @@ class Employee extends Model
     {
         return $this->hasMany(ProjectDocument::class, 'uploaded_by_employee_id');
     }
+
+    public function projectResearchNotes(): HasMany
+    {
+        return $this->hasMany(ProjectResearchNote::class);
+    }
 }

@@ -105,4 +105,9 @@ class Project extends Model
     {
         return $this->hasMany(ProjectDocument::class);
     }
+
+    public function researchNotes(): HasMany
+    {
+        return $this->hasMany(ProjectResearchNote::class);
+    }
 }
