@@ -43,4 +43,9 @@ class Employee extends Model
     {
         return $this->hasMany(EmployeeLicense::class);
     }
+
+    public function acceptedProposals(): HasMany
+    {
+        return $this->hasMany(Proposal::class, 'accepted_by_employee_id');
+    }
 }
