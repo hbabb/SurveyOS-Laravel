@@ -84,4 +84,9 @@ class Employee extends Model
     {
         return $this->hasMany(ProjectInvoiceFollowup::class);
     }
+
+    public function uploadedDocuments(): HasMany
+    {
+        return $this->hasMany(ProjectDocument::class, 'uploaded_by_employee_id');
+    }
 }

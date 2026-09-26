@@ -100,4 +100,9 @@ class Project extends Model
     {
         return $this->hasOne(ProjectCadSetup::class);
     }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(ProjectDocument::class);
+    }
 }
